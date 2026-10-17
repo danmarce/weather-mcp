@@ -15,7 +15,7 @@ log = logging.getLogger("weather_mcp")
 async def _serve(settings: Settings, transport: str, host: str, port: int) -> None:
     from .server import BearerAuth, build_server
 
-    mcp = build_server(settings)
+    mcp = build_server(settings, transport)
     if transport == "stdio":
         await mcp.run_stdio_async()
     else:

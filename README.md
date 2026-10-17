@@ -1,15 +1,20 @@
 # weather-mcp
 
 Weather as **MCP tools**, over [Open-Meteo](https://open-meteo.com/) — **free, no API key, global**. Each
-forecast returns **structured data for the LLM** *and* a rendered **weather card image** (as a short-lived
-link, not base64), so a model can both reason over the numbers and show the user a card.
+forecast returns **structured data for the LLM** *and* a **weather card** for the user: a rendered image (as
+a short-lived link, not base64), or a monospace text card where no image link can be served, such as over
+stdio in Claude Code.
 
 ## Tools
 
 | Tool | What it does |
 |---|---|
-| **get_forecast** | Current conditions + an N-day daily forecast for a place (by name or lat/lon). Returns the data as text + (default) a `card_url`/`card_markdown` for the card image. |
+| **get_forecast** | Current conditions + an N-day daily forecast for a place (by name or lat/lon). Returns the data as text + a `card_markdown` for the model to put in its reply. `card`: `auto` (default), `image`, `text` or `none`. |
 | **geocode** | Resolve a place name to candidate coordinates (name, region, country, lat/lon, timezone). |
+
+`card="auto"` gives an image link when the server can serve one (streamable-http with `WEATHER_PUBLIC_URL`
+set) and the text card otherwise. A caller whose client doesn't display images from links can ask for
+`card="text"` on any transport. The result's `card` field echoes the form actually returned.
 
 Every result carries a `status`: `ok` / `refused` (caller-fixable input, with `advice`) / `error` (a fault).
 Branch on `status`, not prose.
@@ -34,7 +39,7 @@ uv run pytest                # no network: Open-Meteo is faked
 ```
 
 `WEATHER_PUBLIC_URL` must be **browser-reachable** (the client loads the card) — a LAN name/IP, not an
-internal container address. Without it, tools return data only (no card link).
+internal container address. Without it, the card is text instead of an image link.
 
 ### Claude Desktop / Claude Code (stdio)
 
@@ -46,15 +51,16 @@ internal container address. Without it, tools return data only (no card link).
 }
 ```
 
-Over stdio there is no HTTP server to serve `/img/<token>`, so leave `WEATHER_PUBLIC_URL` unset: the tools
-return the data only, which is what the model answers from anyway.
+Over stdio there is no HTTP server to serve `/img/<token>`, so the card comes back as monospace text in a
+```` ```text ```` fence (`WEATHER_PUBLIC_URL` is ignored). It renders cleanly in Claude Code's terminal and
+in Claude Desktop.
 
 ## Config (env)
 
 | Var | Default | Notes |
 |---|---|---|
 | `WEATHER_MCP_TOKEN` | — | Bearer required on streamable-http when set. |
-| `WEATHER_PUBLIC_URL` | — | Browser-reachable base URL; enables the card link. |
+| `WEATHER_PUBLIC_URL` | — | Browser-reachable base URL; enables the image card link (HTTP only). |
 | `WEATHER_OUT_DIR` | `out` | Where card PNGs are written (served at `/img/<token>`, TTL-GC'd). |
 | `WEATHER_IMG_TTL` | `600` | Card link lifetime (seconds). |
 | `WEATHER_DEFAULT_LAT/LON/NAME` | Quito (city-level) | Fallback when a call gives neither place nor coords. **Not** home coordinates. |

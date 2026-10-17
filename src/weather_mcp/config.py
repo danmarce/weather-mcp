@@ -15,7 +15,7 @@ DEFAULT_GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1"
 
 # A sensible lab default location when a call gives neither a place name nor coordinates. Quito city
 # centre is PUBLIC, city-level — deliberately NOT the home coordinates (those are location PII and stay
-# in 1Password, never in a repo or a default). Override via env for another default.
+# in a secret store, never in a repo or a default). Override via env for another default.
 DEFAULT_LAT = -0.1807
 DEFAULT_LON = -78.4678
 DEFAULT_NAME = "Quito"
@@ -34,7 +34,7 @@ class Settings:
     default_name: str = field(default_factory=lambda: os.environ.get("WEATHER_DEFAULT_NAME", DEFAULT_NAME))
     # Card image is served as a short-lived LINK at /img/<name> (base64 in the result would flood context).
     out_dir: str = field(default_factory=lambda: os.environ.get("WEATHER_OUT_DIR", "out"))
-    # The base URL clients use to reach THIS server (e.g. http://yuki:8000, or a casita.digital name).
+    # The base URL clients use to reach THIS server (e.g. http://weather.lan:8000).
     # MUST be browser-reachable: OWUI loads the card client-side. Required for a card link to be returned.
     public_url: str = field(default_factory=lambda: os.environ.get("WEATHER_PUBLIC_URL", "").rstrip("/"))
     # How long a served card link stays valid (TTL GC).
