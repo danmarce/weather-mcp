@@ -54,6 +54,12 @@ in the server — put a gateway/auth proxy in front if exposing it more widely. 
 is open (capability-token URLs, short-lived); everything else needs the bearer when a token is set.
 Open-Meteo is free for non-commercial use.
 
+## AI assistance
+
+weather-mcp is developed openly with the help of Claude (Anthropic). Commits Claude helped write carry a
+`Co-Authored-By: Claude` trailer. The code and design are open source so the work can be inspected, reused,
+and given back.
+
 ## License
 
 MPL-2.0.
